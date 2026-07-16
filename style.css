@@ -234,18 +234,13 @@ body{
 }
 
 .form-box{
-
-    width:90%;
-    max-width:420px;
-
+    width:95%;
+    max-width:500px;   /* 420px బదులుగా 500px */
     background:#fff;
-
-    padding:35px;
-
+    padding:40px 30px;
     border-radius:15px;
-
-    box-shadow:0 5px 15px rgba(0,0,0,0.15);
-
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    box-sizing:border-box;
 }
 
 .form-box h2{
@@ -305,36 +300,27 @@ body{
    MOBILE
 =========================== */
 
-@media(max-width:600px){
+@media screen and (max-width:600px){
 
-.form-box{
+    .form-box{
+        width:96%;
+        max-width:none;
+        padding:35px 25px;
+        border-radius:20px;
+    }
 
-    width:92%;
+    .form-box h2{
+        font-size:30px;
+    }
 
-    padding:30px;
+    .form-box input{
+        height:55px;
+        font-size:18px;
+    }
 
-}
-
-.form-box h2{
-
-    font-size:24px;
-
-}
-
-.form-box input{
-
-    padding:16px;
-
-    font-size:18px;
-
-}
-
-.form-box button{
-
-    padding:16px;
-
-    font-size:18px;
-
-}
+    .form-box button{
+        height:55px;
+        font-size:18px;
+    }
 
 }
