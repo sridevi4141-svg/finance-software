@@ -626,8 +626,10 @@ body{
 @media screen and (max-width:600px){
 
     .form-box{
-        width: calc(100% - 20px);
-        padding: 35px;
+        width:96%;
+        max-width:none;
+        padding:35px 25px;
+        border-radius:20px;
     }
 
     .form-box h2{
