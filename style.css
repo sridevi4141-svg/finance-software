@@ -11,15 +11,23 @@
 }
 body{
     margin:0;
+    padding:0;
+
+    background-image:url("images/background.jpg");
+    background-repeat:no-repeat;
+    background-position:center;
+    background-size:100% 100%;
     min-height:100vh;
+
+    min-height:100vh;
+    width:100%;
+
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:20px;
 
-    background:url("images/background.jpg") center center/cover no-repeat;
-}
-/* ===========================
+    font-family: Arial, sans-serif;
+}/* ===========================
    MAIN CONTAINER
 =========================== */
 
