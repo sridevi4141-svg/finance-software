@@ -6,13 +6,18 @@ font-family:Arial,sans-serif;
 }
 
 body{
-background:#f4f6f9;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
+    margin:0;
+    padding:0;
+    background-image:url("images/bg.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
 
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
 .container{
 text-align:center;
 }
@@ -64,16 +69,18 @@ font-size:24px;
 
 .form-box{
 
-    width:90%;
-    max-width:420px;
+    width:100%;
+    max-width:450px;
 
-    background:#fff;
+    background:rgba(255,255,255,.92);
+
+    backdrop-filter:blur(8px);
 
     padding:35px;
 
-    border-radius:15px;
+    border-radius:20px;
 
-    box-shadow:0 5px 15px rgba(0,0,0,0.15);
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
 
 }
 
