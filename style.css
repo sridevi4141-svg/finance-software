@@ -189,3 +189,137 @@ body{
     }
 
 }
+
+/* ===========================
+OWNER DASHBOARD
+=========================== */
+
+.top-bar{
+    width:100%;
+    max-width:1200px;
+    margin:30px auto;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 20px;
+}
+
+.top-bar h2{
+    font-size:38px;
+    color:#222;
+}
+
+.logout-btn{
+    background:#e53935;
+    color:#fff;
+    border:none;
+    padding:12px 30px;
+    border-radius:10px;
+    font-size:18px;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.logout-btn:hover{
+    background:#c62828;
+}
+
+.dashboard-grid{
+
+    width:100%;
+    max-width:1200px;
+
+    margin:30px auto;
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:30px;
+
+    padding:20px;
+}
+
+.dashboard-card{
+
+    background:#ffffff;
+
+    border-radius:20px;
+
+    padding:50px 20px;
+
+    text-align:center;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:0 15px 35px rgba(0,0,0,.25);
+}
+
+.dashboard-card{
+
+    font-size:70px;
+}
+
+.dashboard-card h3{
+
+    margin-top:20px;
+
+    font-size:28px;
+
+    color:#222;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.top-bar{
+
+    flex-direction:column;
+
+    gap:20px;
+
+    text-align:center;
+}
+
+.top-bar h2{
+
+    font-size:32px;
+}
+
+.logout-btn{
+
+    width:100%;
+}
+
+.dashboard-grid{
+
+    grid-template-columns:1fr;
+
+    padding:15px;
+}
+
+.dashboard-card{
+
+    padding:40px 20px;
+
+    font-size:60px;
+}
+
+.dashboard-card h3{
+
+    font-size:24px;
+}
+
+}
