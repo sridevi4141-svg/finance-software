@@ -311,3 +311,122 @@ OWNER DASHBOARD
     }
 
 }
+/* =========================
+   STAFF LOGIN
+========================= */
+
+.staff-login-container{
+    width:100%;
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.staff-login-box{
+
+    width:90%;
+    max-width:430px;
+
+    background:#fff;
+
+    padding:35px;
+
+    border-radius:18px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
+
+    text-align:center;
+}
+
+.staff-login-box h2{
+
+    font-size:32px;
+
+    margin-bottom:25px;
+
+    color:#222;
+}
+
+.staff-login-box input{
+
+    width:100%;
+
+    padding:15px;
+
+    margin-bottom:18px;
+
+    border:1px solid #ccc;
+
+    border-radius:8px;
+
+    font-size:17px;
+
+    outline:none;
+}
+
+.staff-login-box input:focus{
+
+    border-color:#1565c0;
+}
+
+.staff-login-box button{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#1565c0;
+
+    color:#fff;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.staff-login-box button:hover{
+
+    background:#0d47a1;
+}
+
+/* Mobile */
+
+@media(max-width:600px){
+
+.staff-login-box{
+
+    width:95%;
+
+    padding:30px 22px;
+
+    border-radius:18px;
+}
+
+.staff-login-box h2{
+
+    font-size:28px;
+}
+
+.staff-login-box input{
+
+    height:55px;
+
+    font-size:18px;
+}
+
+.staff-login-box button{
+
+    height:55px;
+
+    font-size:18px;
+}
+
+}
