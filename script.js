@@ -24,3 +24,6 @@ async function ownerLogin() {
 }
 
 window.ownerLogin = ownerLogin;
+window.staffLogin = function () {
+    window.location.href = "staff-login.html";
+};
