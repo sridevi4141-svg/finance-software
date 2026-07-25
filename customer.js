@@ -8,8 +8,18 @@ import {
 
 import {
     collection,
-    addDoc
+    addDoc,deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+const params = new URLSearchParams(window.location.search);
+const day = params.get("day");
+
+
+
+
+window.addCustomer = function () {
+    window.location.href = `add-customer.html?day=${day}`;
+}
+
 
 window.saveCustomer = async function(){
 

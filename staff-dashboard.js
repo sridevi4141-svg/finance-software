@@ -1,5 +1,10 @@
-const staff = JSON.parse(localStorage.getItem("staffLogin"));
+const params = new URLSearchParams(window.location.search);
+const day = params.get("day");
 
+console.log("Day Customers Page URL:", window.location.href);
+console.log("Day Value:", day);
+
+document.getElementById("dayTitle").innerHTML = "Day " + day + " Customers";
 if(staff){
 
     document.getElementById("staffWelcome").innerHTML =
