@@ -103,3 +103,39 @@ window.editCustomer = function(id){
     "add-customer.html?id=" + id;
 
 }
+
+window.searchCustomer = function () {
+
+    const search = document
+        .getElementById("searchCustomer")
+        .value
+        .trim()
+        .toLowerCase();
+
+    const rows = document.querySelectorAll("#customerTable tr");
+
+    rows.forEach((row) => {
+
+        const cells = row.getElementsByTagName("td");
+
+        if (cells.length > 0) {
+
+            const SerialNo = cells[0].innerText.toString().toLowerCase();
+            const name = cells[1].innerText.toLowerCase();
+            const phone = cells[4].innerText.toLowerCase();
+
+            if (
+                SerialNo.includes(search) ||
+                name.includes(search) ||
+                phone.includes(search)
+            ) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+
+        }
+
+    });
+
+}

@@ -111,6 +111,29 @@ table td{
     border-bottom:1px solid #ddd;
 
 }
+.search-box{
+
+    margin:15px 0;
+
+}
+
+.search-box input{
+
+    width: 30%;
+    padding:14px;
+    border:2px solid #1976d2;
+    border-radius:10px;
+    font-size:16px;
+    box-sizing:border-box;
+
+}
+
+.search-box input:focus{
+
+    outline:none;
+    border-color:#4CAF50;
+
+}
 
 @media(max-width:600px){
 
@@ -161,6 +184,15 @@ table td{
         </button>
 
     </div>
+    <div class="search-box">
+
+    <input
+    type="text"
+    id="searchCustomer"
+    placeholder="🔍 సీరియల్ నంబర్ / పేరు / ఫోన్ ద్వారా వెతకండి"
+    onkeyup="searchCustomer()">
+
+</div>
 
     <!-- Customer Table -->
 
@@ -172,7 +204,7 @@ table td{
 
                 <tr>
 
-                    <th>S.No</th>
+                    <th>SerialNo</th>
 
                     <th>Name</th>
                     <th>Relation</th>
