@@ -13,18 +13,9 @@ import {
 const params = new URLSearchParams(window.location.search);
 const day = params.get("day");
 
-const q = query(
-    collection(db, "customers"),
-    where("day", "==", day)
-);
 
-const querySnapshot = await getDocs(q);
-window.addCustomer = function(){
 
-    window.location.href =
-    "add-customer.html?day=" + day;
 
-}
 
 async function loadCustomers() {
 
@@ -32,58 +23,78 @@ async function loadCustomers() {
     tbody.innerHTML = "";
 
     const params = new URLSearchParams(window.location.search);
-const day = params.get("day");
+    const day = params.get("day");
 
-const q = query(
-    collection(db, "customers"),
-    where("day", "==", day)
-);
+    const staff = JSON.parse(localStorage.getItem("staffLogin"));
 
-const querySnapshot = await getDocs(q);
+    document.getElementById("dayTitle").innerHTML =
+        "Day " + day + " Customers";
+
+    const q = query(
+        collection(db, "customers"),
+        where("day", "==", day),
+        where("staffUser", "==", staff.username)
+    );
+
+    const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((docSnap) => {
 
         const data = docSnap.data();
 
         tbody.innerHTML += `
-            <tr>
-                <td>${data.serialNo || ""}</td>
+        <tr>
 
-                <td>
-                    <a href="customer-details.html?id=${docSnap.id}">
-                        ${data.customerName}
-                    </a>
-                </td>
-                <td>${data.relation || ""}</td>
-                <td>${data.village || ""}</td>
-                <td>${data.phone || ""}</td>
-                <td>${data.aadhar || ""}</td>
-                <td>
-    <img src="${data.photo}"
-         width="70"
-         height="70"
-         style="border-radius:8px; object-fit:cover;">
-</td>
-                <td>${data.location || ""}</td>
+            <td>${data.serialNo || ""}</td>
 
-                <td>
-                    <button onclick="editCustomer('${docSnap.id}')">
-                        Edit
-                    </button>
+            <td>
+                <a href="customer-details.html?id=${docSnap.id}">
+                    ${data.customerName || ""}
+                </a>
+            </td>
 
-                    <button onclick="deleteCustomer('${docSnap.id}')">
-                        Delete
-                    </button>
-                </td>
-            </tr>
+            <td>${data.relation || ""}</td>
+
+            <td>${data.village || ""}</td>
+
+            <td>${data.phone || ""}</td>
+
+            <td>${data.aadhar || ""}</td>
+
+            <td>
+                <img src="${data.photo || "user.png"}"
+                     width="70"
+                     height="70"
+                     style="border-radius:8px;object-fit:cover;">
+            </td>
+
+            <td>${data.location || ""}</td>
+
+            <td>
+                <button onclick="editCustomer('${docSnap.id}')">
+                    Edit
+                </button>
+
+                <button onclick="deleteCustomer('${docSnap.id}')">
+                    Delete
+                </button>
+            </td>
+
+        </tr>
         `;
 
     });
 
 }
-
 loadCustomers();
+window.addCustomer = function () {
 
+    const params = new URLSearchParams(window.location.search);
+    const day = params.get("day");
+
+    window.location.href = "add-customer.html?day=" + day;
+
+};
 window.deleteCustomer = async function(id){
 
     if(confirm("Delete Customer?")){
