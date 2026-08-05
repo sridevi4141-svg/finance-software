@@ -134,6 +134,36 @@ table td{
     border-color:#4CAF50;
 
 }
+.filter-box{
+    display:flex;
+    gap:10px;
+    margin-left:15px;
+}
+
+.filter-box button{
+
+    padding:10px 20px;
+
+    border:none;
+
+    border-radius:8px;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:bold;
+}
+
+#paidBtn{
+    background:#28a745;
+}
+
+#unpaidBtn{
+    background:#dc3545;
+}
 
 @media(max-width:600px){
 
@@ -194,7 +224,14 @@ table td{
 
 </div>
 
-    <!-- Customer Table -->
+
+    <button id="paidBtn" onclick="filterCustomers('paid')">
+    🟢 Paid
+</button>
+
+<button id="unpaidBtn" onclick="filterCustomers('unpaid')">
+    🔴 Unpaid
+</button>
 
     <div class="table-box">
 

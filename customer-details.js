@@ -153,7 +153,33 @@ window.saveLoan = async function(){
             }
 
         );
+const customerSnap = await getDoc(
+    doc(db, "customers", customerId)
+);
 
+const customer = customerSnap.data();
+
+const staff = JSON.parse(
+    localStorage.getItem("staffLogin")
+);
+
+await addDoc(collection(db, "dailyLoans"), {
+
+    customerId: customerId,
+
+    serialNo: customer.serialNo,
+
+    customerName: customer.customerName,
+
+    loanAmount: Number(amount),
+
+    staffUser: staff.username,
+
+    date: new Date().toISOString().split("T")[0],
+
+    createdDate: new Date()
+
+});
         alert("Loan Details Saved Successfully");
 
     }catch(error){
@@ -307,17 +333,23 @@ window.saveWeekPayment = async function () {
             toPay: balance
         });
 
-        // Save Payment History
-        await addDoc(collection(db, "payments"), {
+        const staff = JSON.parse(localStorage.getItem("staffLogin"));
 
-            customerId: customerId,
-            week: selectedWeek,
-            amount: paidAmount,
-            paymentDate: new Date(),
-            status: "Paid"
+await addDoc(collection(db, "payments"), {
 
-        });
+    customerId: customerId,
 
+    week: selectedWeek,
+
+    amount: paidAmount,
+
+    paymentDate: new Date(),
+
+    staffUser: staff.username,
+
+    status: "Paid"
+
+});
         document.getElementById("toPay").value = balance;
 
        alert("Payment Saved Successfully");
@@ -335,3 +367,4 @@ await loadCustomer();
     }
 
 }
+

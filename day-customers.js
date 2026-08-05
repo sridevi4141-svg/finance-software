@@ -14,13 +14,10 @@ const params = new URLSearchParams(window.location.search);
 const day = params.get("day");
 
 
-
+let allCustomers = [];
 
 
 async function loadCustomers() {
-
-    const tbody = document.getElementById("customerTable");
-    tbody.innerHTML = "";
 
     const params = new URLSearchParams(window.location.search);
     const day = params.get("day");
@@ -38,9 +35,33 @@ async function loadCustomers() {
 
     const querySnapshot = await getDocs(q);
 
+    // Array clear
+    allCustomers = [];
+
     querySnapshot.forEach((docSnap) => {
 
         const data = docSnap.data();
+
+        data.id = docSnap.id;
+
+        allCustomers.push(data);
+
+    });
+
+    // Table Load
+    displayCustomers(allCustomers);
+
+}
+
+loadCustomers();
+
+function displayCustomers(customers) {
+
+    const tbody = document.getElementById("customerTable");
+
+    tbody.innerHTML = "";
+
+    customers.forEach((data) => {
 
         tbody.innerHTML += `
         <tr>
@@ -48,7 +69,7 @@ async function loadCustomers() {
             <td>${data.serialNo || ""}</td>
 
             <td>
-                <a href="customer-details.html?id=${docSnap.id}">
+                <a href="customer-details.html?id=${data.id}">
                     ${data.customerName || ""}
                 </a>
             </td>
@@ -71,11 +92,11 @@ async function loadCustomers() {
             <td>${data.location || ""}</td>
 
             <td>
-                <button onclick="editCustomer('${docSnap.id}')">
+                <button onclick="editCustomer('${data.id}')">
                     Edit
                 </button>
 
-                <button onclick="deleteCustomer('${docSnap.id}')">
+                <button onclick="deleteCustomer('${data.id}')">
                     Delete
                 </button>
             </td>
@@ -86,7 +107,7 @@ async function loadCustomers() {
     });
 
 }
-loadCustomers();
+
 window.addCustomer = function () {
 
     const params = new URLSearchParams(window.location.search);
@@ -148,5 +169,124 @@ window.searchCustomer = function () {
         }
 
     });
+
+}
+
+window.filterCustomers = async function(type){
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const paidSnap = await getDocs(
+
+        query(
+
+            collection(db,"payments"),
+
+            where("paymentDate","==",today),
+
+            where("staffUser","==",staff.username)
+
+        )
+
+    );
+
+    const paidIds = [];
+
+    paidSnap.forEach((doc)=>{
+
+        paidIds.push(doc.data().customerId);
+
+    });
+
+    if(type=="paid"){
+
+        displayCustomers(
+
+            allCustomers.filter(c =>
+
+                paidIds.includes(c.id)
+
+            )
+
+        );
+
+    }
+
+    else{
+
+        displayCustomers(
+
+            allCustomers.filter(c =>
+
+                !paidIds.includes(c.id)
+
+            )
+
+        );
+
+    }
+
+}
+
+window.filterCustomers = async function(type){
+
+    const staff = JSON.parse(localStorage.getItem("staffLogin"));
+
+    const paymentSnap = await getDocs(
+        query(
+            collection(db, "payments"),
+            where("staffUser", "==", staff.username)
+        )
+    );
+
+    const paidIds = [];
+
+    const today = new Date().toLocaleDateString();
+
+    paymentSnap.forEach((docSnap) => {
+
+        const data = docSnap.data();
+
+        let paymentDate = "";
+
+        if (data.paymentDate.seconds) {
+
+            paymentDate = new Date(
+                data.paymentDate.seconds * 1000
+            ).toLocaleDateString();
+
+        } else {
+
+            paymentDate = new Date(
+                data.paymentDate
+            ).toLocaleDateString();
+
+        }
+
+        if (paymentDate === today) {
+
+            paidIds.push(data.customerId);
+
+        }
+
+    });
+
+    let filteredCustomers = [];
+
+    if (type === "paid") {
+
+        filteredCustomers = allCustomers.filter(customer =>
+            paidIds.includes(customer.id)
+        );
+
+    } else {
+
+        filteredCustomers = allCustomers.filter(customer =>
+            !paidIds.includes(customer.id)
+        );
+
+    }
+
+    displayCustomers(filteredCustomers);
 
 }
