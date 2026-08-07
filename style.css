@@ -430,3 +430,25 @@ OWNER DASHBOARD
 }
 
 }
+
+.dashboard-card{
+    transition:0.3s;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+.logout-btn{
+    background:#e53935;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.logout-btn:hover{
+    background:#c62828;
+}

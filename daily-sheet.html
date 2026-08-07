@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>డైలీ షీట్</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+}
+
+.header{
+
+    background:#1565c0;
+    color:white;
+    padding:18px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+
+}
+
+.container{
+
+    width:95%;
+    max-width:600px;
+    margin:20px auto;
+
+}
+
+.card{
+
+    background:white;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:18px;
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+
+}
+
+.card h3{
+
+    color:#1565c0;
+    margin-bottom:15px;
+
+}
+
+label{
+
+    display:block;
+    margin-top:12px;
+    margin-bottom:5px;
+    font-weight:bold;
+
+}
+
+input,textarea{
+
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+
+}
+
+textarea{
+
+    resize:none;
+    height:80px;
+
+}
+
+.summary{
+
+    display:flex;
+    justify-content:space-between;
+    margin-top:10px;
+    font-size:17px;
+    font-weight:bold;
+
+}
+
+.green{
+
+    color:green;
+
+}
+
+.red{
+
+    color:red;
+
+}
+
+.blue{
+
+    color:#1565c0;
+
+}
+
+.save-btn{
+
+    width:100%;
+    padding:15px;
+    background:#4CAF50;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+    cursor:pointer;
+    margin-top:20px;
+
+}
+
+.save-btn:hover{
+
+    background:#388e3c;
+
+}
+
+.back-btn{
+
+    width:100%;
+    padding:14px;
+    background:#ff9800;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:17px;
+    cursor:pointer;
+    margin-bottom:15px;
+
+}
+
+.back-btn:hover{
+
+    background:#f57c00;
+
+}
+
+@media(max-width:600px){
+
+.header{
+
+    font-size:20px;
+
+}
+
+.card{
+
+    padding:15px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+📅 డైలీ షీట్
+
+</div>
+
+<div class="container">
+
+<button
+class="back-btn"
+onclick="history.back()">
+
+⬅ వెనక్కి
+
+</button>
+
+<div class="card">
+
+<h3>📋 ఈరోజు వివరాలు</h3>
+
+<label>తేదీ</label>
+
+<input
+type="date"
+id="todayDate">
+
+<label>స్టాఫ్ పేరు</label>
+
+<input
+type="text"
+id="staffName"
+placeholder="స్టాఫ్ పేరు నమోదు చేయండి">
+
+</div>
+
+<div class="card">
+
+<h3>💰 నగదు వివరాలు</h3>
+
+<label>ప్రారంభ నగదు (Opening Cash)</label>
+
+<input
+type="number"
+id="openingCash"
+placeholder="0">
+
+<div class="summary">
+
+<span>ఈరోజు కలెక్షన్</span>
+
+<span
+id="todayCollection"
+class="green">
+
+₹0
+
+</span>
+
+</div>
+
+<label>ఈరోజు ఖర్చులు</label>
+
+<input
+type="number"
+id="expenses"
+placeholder="0">
+
+<div class="summary">
+
+<span>ముగింపు నగదు</span>
+
+<span
+id="closingCash"
+class="blue">
+
+₹0
+
+</span>
+
+</div>
+
+</div>
+<h2>🆕 ఈరోజు ఇచ్చిన లోన్స్</h2>
+
+<table border="1" width="100%">
+
+    <thead>
+
+        <tr>
+
+            <th>S.No</th>
+
+            <th>కస్టమర్ పేరు</th>
+
+            <th>లోన్ మొత్తం</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="loanTableBody">
+
+    </tbody>
+
+    <tfoot>
+
+        <tr>
+
+            <th colspan="2">
+                మొత్తం లోన్స్
+            </th>
+
+            <th id="totalLoan">
+                ₹0
+            </th>
+
+        </tr>
+
+    </tfoot>
+
+</table>
+
+<h3>💵 ఈరోజు కలెక్షన్స్</h3>
+
+<table border="1" width="100%">
+
+    <thead>
+
+        <tr>
+
+            <th>S.No</th>
+
+            <th>కస్టమర్ పేరు</th>
+
+            <th>చెల్లించిన మొత్తం</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="collectionTableBody">
+
+    </tbody>
+
+    <tfoot>
+
+        <tr>
+
+            <th colspan="2">
+                మొత్తం కలెక్షన్
+            </th>
+
+            <th id="totalCollection">
+    ₹0
+</th>
+
+        </tr>
+
+    </tfoot>
+
+</table>
+
+<div class="card">
+
+<h3>📝 గమనికలు</h3>
+
+<textarea
+id="notes"
+placeholder="ఏవైనా గమనికలు..."></textarea>
+
+</div>
+
+<button
+class="save-btn"
+onclick="saveDailySheet()">
+
+💾 డైలీ షీట్ సేవ్ చేయండి
+
+</button>
+
+</div>
+
+<script type="module" src="daily-sheet.js"></script>
+
+</body>
+</html>
