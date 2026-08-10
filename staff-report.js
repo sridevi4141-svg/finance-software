@@ -74,155 +74,9 @@ async function loadSummary(){
 
 async function loadLoans(){
 
-    const tbody =
-    document.getElementById("loanBody");
+    const tbody = document.getElementById("loanBody");
 
     tbody.innerHTML = "";
-
-    const q = query(
-
-        collection(db,"dailyLoans"),
-
-        where("staffUser","==",staffUser),
-
-        where("date","==",today)
-
-    );
-
-    const snap = await getDocs(q);
-
-    
-    let sno = 1;
-
-    snap.forEach((docSnap)=>{
-
-        const data = docSnap.data();
-
-        tbody.innerHTML += `
-
-        <tr>
-
-            <td>${sno++}</td>
-
-            <td>${data.customerName}</td>
-
-            <td>₹ ${data.loanAmount}</td>
-
-        </tr>
-
-        `;
-
-    });
-
-}
-
-
-
-// =============================
-// Collections
-// =============================
-
-async function loadCollections(){
-     let sno = 1;
-
-    const tbody =
-    document.getElementById("collectionBody");
-
-    tbody.innerHTML = "";
-
-    const q = query(
-
-        collection(db,"payments"),
-
-        where("staffUser","==",staffUser)
-
-    );
-
-    const snap = await getDocs(q);
-
-    
-
-    for(const docSnap of snap.docs){
-
-        const data = docSnap.data();
-
-        if(!data.paymentDate) continue;
-
-        const paymentDate =
-
-        new Date(
-
-            data.paymentDate.seconds
-
-            ? data.paymentDate.seconds*1000
-
-            : data.paymentDate
-
-        ).toISOString().split("T")[0];
-
-        if(paymentDate == today){
-
-            let customerName = "";
-
-            if(data.customerId){
-
-                const customerSnap =
-                await getDoc(
-                    doc(db,"customers",data.customerId)
-                );
-
-                if(customerSnap.exists()){
-
-                    customerName =
-                    customerSnap.data().customerName;
-
-                }
-
-            }
-
-            tbody.innerHTML += `
-
-            <tr>
-
-                <td>${sno++}</td>
-
-                <td>${customerName}</td>
-
-                <td>₹ ${data.amount}</td>
-
-            </tr>
-
-            `;
-
-        }
-
-    }
-
-}
-
-
-
-// =============================
-// Excel Download
-// =============================
-
-window.downloadExcel = function(){
-
-    alert("Excel Download Feature Next Step");
-
-}
-
-window.downloadExcel = async function () {
-
-    const wb = XLSX.utils.book_new();
-
-    const data = [];
-
-    data.push([
-        "S.No",
-        "Customer Name",
-        "Loan Amount"
-    ]);
 
     const q = query(
         collection(db, "dailyLoans"),
@@ -233,234 +87,308 @@ window.downloadExcel = async function () {
     const snap = await getDocs(q);
 
     let sno = 1;
+    let totalLoan = 0;
 
     snap.forEach((docSnap) => {
 
-        const d = docSnap.data();
+        const data = docSnap.data();
 
-        data.push([
-            sno++,
-            d.customerName,
-            d.loanAmount
-        ]);
+        const loanAmount = Number(data.loanAmount || 0);
+
+        totalLoan += loanAmount;
+
+        tbody.innerHTML += `
+
+        <tr>
+
+            <td>${sno++}</td>
+
+            <td>${data.customerName || ""}</td>
+
+            <td>₹ ${loanAmount}</td>
+
+        </tr>
+
+        `;
 
     });
 
-    const ws = XLSX.utils.aoa_to_sheet(data);
+   document.getElementById("loanTotal").textContent =
+    "₹" + totalLoan;
 
-    XLSX.utils.book_append_sheet(
-        wb,
-        ws,
-        "Daily Report"
+}
+
+// =============================
+// Collections
+// =============================
+
+async function loadCollections(){
+
+    let sno = 1;
+    let totalCollection = 0;
+
+    const tbody =
+        document.getElementById("collectionBody");
+
+    tbody.innerHTML = "";
+
+    const q = query(
+
+        collection(db, "payments"),
+
+        where("staffUser", "==", staffUser)
+
     );
 
-    XLSX.writeFile(
-        wb,
-        staffUser + "_Daily_Report.xlsx"
-    );
+    const snap = await getDocs(q);
+
+    for (const docSnap of snap.docs) {
+
+        const data = docSnap.data();
+
+        if (!data.paymentDate) continue;
+
+        const paymentDate = new Date(
+
+            data.paymentDate.seconds
+                ? data.paymentDate.seconds * 1000
+                : data.paymentDate
+
+        ).toISOString().split("T")[0];
+
+        if (paymentDate == today) {
+
+            let customerName = "";
+
+            if (data.customerId) {
+
+                const customerSnap =
+                    await getDoc(
+                        doc(db, "customers", data.customerId)
+                    );
+
+                if (customerSnap.exists()) {
+
+                    customerName =
+                        customerSnap.data().customerName;
+
+                }
+
+            }
+
+            const paymentAmount =
+                Number(data.amount || 0);
+
+            totalCollection += paymentAmount;
+
+            tbody.innerHTML += `
+
+            <tr>
+
+                <td>${sno++}</td>
+
+                <td>${customerName}</td>
+
+                <td>₹ ${paymentAmount}</td>
+
+            </tr>
+
+            `;
+
+        }
+
+    }
+
+    document.getElementById("collectionTotal").textContent =
+    "₹" + totalCollection;
+
+}
 
 
+// =============================
+// Excel Download
+// =============================
 
 window.downloadExcel = async function () {
 
-    // Workbook Create
-    const workbook = XLSX.utils.book_new();
+    try {
 
-    // Excel Data
-    const excelData = [];
+        const workbook = XLSX.utils.book_new();
 
-    // Report Date
-    const reportDate = today;
+        // =========================
+        // PAYMENT SHEET
+        // =========================
 
-    // Staff Name
-    let staffName = staffUser;
+        const paymentData = [];
 
-    // Totals
-    let totalLoan = 0;
-    let totalPaid = 0;
-    let totalBalance = 0;
-
-    // Daily Sheet Values
-    let openingCash = 0;
-    let expenses = 0;
-    let closingCash = 0;
-    let collection = 0;
-
-    // Daily Sheet Query
-    const dailyQuery = query(
-        collection(db, "dailySheets"),
-        where("staffUser", "==", staffUser),
-        where("date", "==", today)
-    );
-
-    const dailySnap = await getDocs(dailyQuery);
-
-    if (!dailySnap.empty) {
-
-        const daily = dailySnap.docs[0].data();
-
-        staffName = daily.staffName || staffUser;
-
-        openingCash = Number(daily.openingCash || 0);
-
-        expenses = Number(daily.expenses || 0);
-
-        closingCash = Number(daily.closingCash || 0);
-
-        collection = Number(daily.collection || 0);
-
-    }
-}
-
-    // Heading
-
-    excelData.push(["FINANCE SOFTWARE REPORT"]);
-    excelData.push([]);
-
-    excelData.push(["Staff Name", staffName]);
-    excelData.push(["Report Date", reportDate]);
-    excelData.push([]);
-
-    excelData.push(["Opening Cash", openingCash]);
-    excelData.push(["Today's Collection", collection]);
-    excelData.push(["Expenses", expenses]);
-    excelData.push(["Closing Cash", closingCash]);
-    excelData.push([]);
-
-    // Table Heading
-
-    excelData.push([
-        "S.No",
-        "Customer Name",
-        "Village",
-        "Phone Number",
-        "Loan Amount",
-        "Paid Amount",
-        "Balance Amount"
-    ]);
-
-    // Load Customers
-
-    const customerQuery = query(
-        collection(db, "customers"),
-        where("staffUser", "==", staffUser)
-    );
-
-    const customerSnap = await getDocs(customerQuery);
-
-    
-
-    customerSnap.forEach((docSnap) => {
-
-        const customer = docSnap.data();
-
-        const loan = Number(customer.amount || 0);
-
-const balance = Number(customer.toPay || 0);
-
-const paid = loan - balance;
-        totalLoan += loan;
-        totalPaid += paid;
-        totalBalance += balance;
-
-        excelData.push([
-
-            sno++,
-
-            customer.customerName || "",
-
-            customer.location || "",
-
-            customer.phone || "",
-
-            loan,
-
-            paid,
-
-            balance
-
+        paymentData.push([
+            "S.No",
+            "Customer Name",
+            "Village",
+            "Phone Number",
+            "Paid Amount"
         ]);
 
-    });
+        let paymentSno = 1;
+        let totalPayment = 0;
 
-        // Totals
+        const paymentQuery = query(
+            collection(db, "payments"),
+            where("staffUser", "==", staffUser)
+        );
 
-    excelData.push([]);
+        const paymentSnap = await getDocs(paymentQuery);
 
-    excelData.push(["", "", "", "TOTAL"]);
+        paymentSnap.forEach((docSnap) => {
 
-    excelData.push([
-        "",
-        "",
-        "",
-        "Loan",
-        totalLoan
-    ]);
+            const d = docSnap.data();
 
-    excelData.push([
-        "",
-        "",
-        "",
-        "Paid",
-        totalPaid
-    ]);
+            const amount = Number(d.amount || 0);
 
-    excelData.push([
-        "",
-        "",
-        "",
-        "Balance",
-        totalBalance
-    ]);
+            paymentData.push([
+                paymentSno++,
+                d.customerName || "",
+                d.village || d.location || "",
+                d.phone || "",
+                amount
+            ]);
 
-    // Create Worksheet
+            totalPayment += amount;
 
-    const worksheet =
-        XLSX.utils.aoa_to_sheet(excelData);
+        });
 
-    // Column Width
+        paymentData.push([]);
+        paymentData.push([
+            "",
+            "",
+            "",
+            "TOTAL PAYMENT",
+            totalPayment
+        ]);
 
-    worksheet["!cols"] = [
 
-        { wch: 8 },
+        // =========================
+        // LOAN SHEET
+        // =========================
 
-        { wch: 25 },
+        const loanData = [];
 
-        { wch: 20 },
+        loanData.push([
+            "S.No",
+            "Customer Name",
+            "Village",
+            "Phone Number",
+            "Loan Amount"
+        ]);
 
-        { wch: 18 },
+        let loanSno = 1;
+        let totalLoan = 0;
 
-        { wch: 15 },
+        const loanQuery = query(
+            collection(db, "dailyLoans"),
+            where("staffUser", "==", staffUser)
+        );
 
-        { wch: 15 },
+        const loanSnap = await getDocs(loanQuery);
 
-        { wch: 18 }
+        loanSnap.forEach((docSnap) => {
 
-    ];
+            const d = docSnap.data();
 
-    // Add Sheet
+            const amount = Number(d.loanAmount || 0);
 
-    XLSX.utils.book_append_sheet(
+            loanData.push([
+                loanSno++,
+                d.customerName || "",
+                d.village || d.location || "",
+                d.phone || "",
+                amount
+            ]);
 
-        workbook,
+            totalLoan += amount;
 
-        worksheet,
+        });
 
-        "Daily Report"
+        loanData.push([]);
+        loanData.push([
+            "",
+            "",
+            "",
+            "TOTAL LOAN",
+            totalLoan
+        ]);
 
-    );
 
-    // Download
+        // =========================
+        // CREATE PAYMENT SHEET
+        // =========================
 
-    const fileName =
-        staffName + "_" + reportDate + "_Report.xlsx";
+        const paymentSheet =
+            XLSX.utils.aoa_to_sheet(paymentData);
 
-    XLSX.writeFile(
+        paymentSheet["!cols"] = [
+            { wch: 8 },
+            { wch: 25 },
+            { wch: 20 },
+            { wch: 18 },
+            { wch: 15 }
+        ];
 
-        workbook,
+        XLSX.utils.book_append_sheet(
+            workbook,
+            paymentSheet,
+            "Payment Sheet"
+        );
 
-        fileName
 
-    );
+        // =========================
+        // CREATE LOAN SHEET
+        // =========================
 
-}
+        const loanSheet =
+            XLSX.utils.aoa_to_sheet(loanData);
+
+        loanSheet["!cols"] = [
+            { wch: 8 },
+            { wch: 25 },
+            { wch: 20 },
+            { wch: 18 },
+            { wch: 15 }
+        ];
+
+        XLSX.utils.book_append_sheet(
+            workbook,
+            loanSheet,
+            "Loan Sheet"
+        );
+
+
+        // =========================
+        // DOWNLOAD
+        // =========================
+
+        const fileName =
+            staffUser + "_Report.xlsx";
+
+        XLSX.writeFile(
+            workbook,
+            fileName
+        );
+
+        alert("Excel successfully downloaded.");
+
+    }
+    catch (error) {
+
+        console.error(
+            "Excel Error:",
+            error
+        );
+
+        alert(
+            "Excel download failed."
+        );
+
+    }
+
+};
