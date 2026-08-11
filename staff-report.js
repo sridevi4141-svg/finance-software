@@ -219,18 +219,16 @@ window.downloadExcel = async function () {
         // PAYMENT SHEET
         // =========================
 
-        const paymentData = [];
-
-        paymentData.push([
-            "S.No",
-            "Customer Name",
-            "Village",
-            "Phone Number",
-            "Paid Amount"
-        ]);
-
-        let paymentSno = 1;
-        let totalPayment = 0;
+        const paymentData = [
+            [
+                "Date",
+                "Serial No",
+                "Name",
+                "Village",
+                "Ph No",
+                "Paid Amount"
+            ]
+        ];
 
         const paymentQuery = query(
             collection(db, "payments"),
@@ -239,100 +237,77 @@ window.downloadExcel = async function () {
 
         const paymentSnap = await getDocs(paymentQuery);
 
-        paymentSnap.forEach((docSnap) => {
+        for (const paymentDoc of paymentSnap.docs) {
 
-            const d = docSnap.data();
+            const payment = paymentDoc.data();
 
-            const amount = Number(d.amount || 0);
+            if (!payment.paymentDate) continue;
+
+            let paymentDate;
+
+            if (payment.paymentDate.seconds) {
+
+                paymentDate = new Date(
+                    payment.paymentDate.seconds * 1000
+                );
+
+            } else {
+
+                paymentDate = new Date(payment.paymentDate);
+
+            }
+
+            const dateString =
+                paymentDate.toISOString().split("T")[0];
+
+            // Date filter
+            if (dateString !== today) continue;
+
+
+            let customerName = "";
+            let village = "";
+            let phone = "";
+            let serialNo = "";
+
+            // Get customer details
+            if (payment.customerId) {
+
+                const customerSnap = await getDoc(
+                    doc(db, "customers", payment.customerId)
+                );
+
+                if (customerSnap.exists()) {
+
+                    const customer =
+                        customerSnap.data();
+
+                    customerName =
+                        customer.customerName || "";
+
+                    village =
+                        customer.village || "";
+
+                    phone =
+                        customer.phone || "";
+
+                    serialNo =
+                        customer.serialNo || "";
+                }
+            }
 
             paymentData.push([
-                paymentSno++,
-                d.customerName || "",
-                d.village || d.location || "",
-                d.phone || "",
-                amount
+                dateString,
+                serialNo,
+                customerName,
+                village,
+                phone,
+                Number(payment.amount || 0)
             ]);
+        }
 
-            totalPayment += amount;
-
-        });
-
-        paymentData.push([]);
-        paymentData.push([
-            "",
-            "",
-            "",
-            "TOTAL PAYMENT",
-            totalPayment
-        ]);
-
-
-        // =========================
-        // LOAN SHEET
-        // =========================
-
-        const loanData = [];
-
-        loanData.push([
-            "S.No",
-            "Customer Name",
-            "Village",
-            "Phone Number",
-            "Loan Amount"
-        ]);
-
-        let loanSno = 1;
-        let totalLoan = 0;
-
-        const loanQuery = query(
-            collection(db, "dailyLoans"),
-            where("staffUser", "==", staffUser)
-        );
-
-        const loanSnap = await getDocs(loanQuery);
-
-        loanSnap.forEach((docSnap) => {
-
-            const d = docSnap.data();
-
-            const amount = Number(d.loanAmount || 0);
-
-            loanData.push([
-                loanSno++,
-                d.customerName || "",
-                d.village || d.location || "",
-                d.phone || "",
-                amount
-            ]);
-
-            totalLoan += amount;
-
-        });
-
-        loanData.push([]);
-        loanData.push([
-            "",
-            "",
-            "",
-            "TOTAL LOAN",
-            totalLoan
-        ]);
-
-
-        // =========================
-        // CREATE PAYMENT SHEET
-        // =========================
 
         const paymentSheet =
             XLSX.utils.aoa_to_sheet(paymentData);
-
-        paymentSheet["!cols"] = [
-            { wch: 8 },
-            { wch: 25 },
-            { wch: 20 },
-            { wch: 18 },
-            { wch: 15 }
-        ];
 
         XLSX.utils.book_append_sheet(
             workbook,
@@ -342,19 +317,83 @@ window.downloadExcel = async function () {
 
 
         // =========================
-        // CREATE LOAN SHEET
+        // LOAN SHEET
         // =========================
+
+        const loanData = [
+            [
+                "Date",
+                "Serial No",
+                "Name",
+                "Village",
+                "Ph No",
+                "Loan Amount"
+            ]
+        ];
+
+        const loanQuery = query(
+            collection(db, "dailyLoans"),
+            where("staffUser", "==", staffUser)
+        );
+
+        const loanSnap = await getDocs(loanQuery);
+
+        for (const loanDoc of loanSnap.docs) {
+
+            const loan = loanDoc.data();
+
+            if (loan.date !== today) continue;
+
+
+            let customerName =
+                loan.customerName || "";
+
+            let village = "";
+            let phone = "";
+            let serialNo =
+                loan.serialNo || "";
+
+
+            // Get customer details
+            if (loan.customerId) {
+
+                const customerSnap = await getDoc(
+                    doc(db, "customers", loan.customerId)
+                );
+
+                if (customerSnap.exists()) {
+
+                    const customer =
+                        customerSnap.data();
+
+                    customerName =
+                        customer.customerName || customerName;
+
+                    village =
+                        customer.village || "";
+
+                    phone =
+                        customer.phone || "";
+
+                    serialNo =
+                        customer.serialNo || serialNo;
+                }
+            }
+
+
+            loanData.push([
+                loan.date || today,
+                serialNo,
+                customerName,
+                village,
+                phone,
+                Number(loan.loanAmount || 0)
+            ]);
+        }
+
 
         const loanSheet =
             XLSX.utils.aoa_to_sheet(loanData);
-
-        loanSheet["!cols"] = [
-            { wch: 8 },
-            { wch: 25 },
-            { wch: 20 },
-            { wch: 18 },
-            { wch: 15 }
-        ];
 
         XLSX.utils.book_append_sheet(
             workbook,
@@ -364,29 +403,50 @@ window.downloadExcel = async function () {
 
 
         // =========================
-        // DOWNLOAD
+        // COLUMN WIDTHS
+        // =========================
+
+        paymentSheet["!cols"] = [
+            { wch: 14 },
+            { wch: 12 },
+            { wch: 22 },
+            { wch: 20 },
+            { wch: 15 },
+            { wch: 15 }
+        ];
+
+        loanSheet["!cols"] = [
+            { wch: 14 },
+            { wch: 12 },
+            { wch: 22 },
+            { wch: 20 },
+            { wch: 15 },
+            { wch: 15 }
+        ];
+
+
+        // =========================
+        // FILE NAME
         // =========================
 
         const fileName =
-            staffUser + "_Report.xlsx";
+            `${staffUser}_${today}_Report.xlsx`;
 
         XLSX.writeFile(
             workbook,
             fileName
         );
 
-        alert("Excel successfully downloaded.");
 
-    }
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Excel Error:",
+            "Excel Download Error:",
             error
         );
 
         alert(
-            "Excel download failed."
+            "Excel Download Failed"
         );
 
     }
