@@ -14,7 +14,8 @@ const params = new URLSearchParams(window.location.search);
 const day = params.get("day");
 
 
-
+let latitude = "";
+let longitude = "";
 
 window.addCustomer = function () {
     window.location.href = `add-customer.html?day=${day}`;
@@ -74,6 +75,10 @@ if(file){
         photo: photoUrl,
         location: location,
 
+        latitude: latitude,
+
+        longitude: longitude,
+
         day: day,
         staffUser: staff.username,
 
@@ -88,20 +93,31 @@ if(file){
 }
 window.getLocation = async function(){
 
-    if (navigator.geolocation) {
+    if (!navigator.geolocation) {
 
-        navigator.geolocation.getCurrentPosition(async function (position) {
+        alert("Geolocation is not supported");
 
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        async function(position) {
+
+            latitude =
+                position.coords.latitude;
+
+            longitude =
+                position.coords.longitude;
 
             try {
 
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
                 );
 
-                const data = await response.json();
+                const data =
+                    await response.json();
 
                 const place =
                     data.address.village ||
@@ -111,23 +127,48 @@ window.getLocation = async function(){
                     data.address.county ||
                     "Location Not Found";
 
-                document.getElementById("location").value = place;
+                document.getElementById(
+                    "location"
+                ).value = place;
+
+                alert("📍 Location Captured Successfully");
 
             } catch (e) {
 
-                alert("Location Fetch Failed");
+                console.log(e);
+
+                // Even if address lookup fails,
+                // latitude and longitude are already captured.
+
+                document.getElementById(
+                    "location"
+                ).value =
+                    `${latitude}, ${longitude}`;
 
             }
 
-        });
+        },
 
-    } else {
+        function(error) {
 
-        alert("Geolocation is not supported");
+            console.log(error);
 
-    }
+            alert(
+                "Please allow Location Permission"
+            );
 
-}
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        }
+
+    );
+
+};
+
 async function uploadPhoto(file) {
 
     const formData = new FormData();

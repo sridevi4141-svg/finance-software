@@ -29,44 +29,33 @@ loadCollections();
 async function loadSummary(){
 
     const q = query(
-
-        collection(db,"dailySheets"),
-
-        where("staffUser","==",staffUser),
-
-        where("date","==",today)
-
+        collection(db, "dailySheets"),
+        where("staffUser", "==", staffUser),
+        where("date", "==", today)
     );
 
     const snap = await getDocs(q);
 
-    if(!snap.empty){
+    if (!snap.empty) {
 
         const data = snap.docs[0].data();
 
         document.getElementById("staffTitle").innerHTML =
-        data.staffName + " Daily Report";
-
-        document.getElementById("openingCash").innerHTML =
-        "₹ " + data.openingCash;
+            (data.staffName || staffUser) + " Daily Report";
 
         document.getElementById("loanTotal").innerHTML =
-        "₹ " + data.totalLoan;
+            "₹ " + Number(data.totalLoan || 0);
 
         document.getElementById("collectionTotal").innerHTML =
-        "₹ " + data.totalCollection;
+            "₹ " + Number(data.totalCollection || 0);
 
         document.getElementById("expenses").innerHTML =
-        "₹ " + data.expenses;
+            "₹ " + Number(data.expenses || 0);
 
-        document.getElementById("closingCash").innerHTML =
-        "₹ " + data.closingCash;
-
+        document.getElementById("notes").innerHTML =
+            data.notes || "No Notes";
     }
-
 }
-
-
 
 // =============================
 // Loans

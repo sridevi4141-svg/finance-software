@@ -181,11 +181,7 @@ readonly>
 
 <br><br>
 
-<label>Opening Cash</label>
 
-<input
-type="number"
-id="openingCash">
 
 <br><br>
 
@@ -211,31 +207,19 @@ id="openingCash">
 <label>Expenses</label>
 
 <input
-type="number"
-id="expenses">
-
+    type="number"
+    id="expenses"
+    placeholder="Enter Expenses"
+>
 <br><br>
-
-<label>Closing Cash</label>
-
-<h3 id="closingCash">
-₹0
-</h3>
-
-<label>Notes</label>
-
 <textarea
-id="notes"></textarea>
-
+    id="notes"
+    placeholder="Enter Notes">
+</textarea>
 <br><br>
-
-<button
-onclick="saveDailySheet()">
-
-💾 Save Daily Sheet
-
+<button onclick="saveDailySheet()">
+    💾 Save Daily Sheet
 </button>
-
 </div>
 
 <script

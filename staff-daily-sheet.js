@@ -125,19 +125,12 @@ function calculateClosing() {
         document.getElementById("expenses").value
     ) || 0;
 
-    const closingCash =
-        openingCash +
-        totalCollection -
-        expenses;
-
-    document.getElementById("closingCash").innerHTML =
-        "₹ " + closingCash;
+    
 
 }
 
 // Auto Calculate
-document.getElementById("openingCash")
-.addEventListener("input", calculateClosing);
+
 
 document.getElementById("expenses")
 .addEventListener("input", calculateClosing);
@@ -146,49 +139,54 @@ document.getElementById("expenses")
 // ===============================
 // Save Daily Sheet
 // ===============================
-
-window.saveDailySheet = async function () {
-
-    const openingCash = Number(
-        document.getElementById("openingCash").value
-    ) || 0;
+ window.saveDailySheet = async function () {
 
     const expenses = Number(
         document.getElementById("expenses").value
     ) || 0;
 
     const notes =
-        document.getElementById("notes").value;
-
-    const closingCash =
-        openingCash +
-        totalCollection -
-        expenses;
+        document.getElementById("notes").value || "";
 
     try {
 
+        // First load today's actual Loan and Collection
+        await loadTodayLoan();
+        await loadTodayCollection();
+
+        console.log("Today's Loan:", totalLoan);
+        console.log("Today's Collection:", totalCollection);
+        console.log("Today's Expenses:", expenses);
+
+        // Save Daily Sheet
         await addDoc(
             collection(db, "dailySheets"),
             {
+
                 date: today,
+
                 staffUser: staff.username,
-                staffName: staff.name || staff.username,
 
-                openingCash: openingCash,
+                staffName:
+                    staff.name || staff.username,
 
-                totalLoan: totalLoan,
+                totalLoan:
+                    Number(totalLoan || 0),
 
-                totalCollection: totalCollection,
+                totalCollection:
+                    Number(totalCollection || 0),
 
-                expenses: expenses,
+                expenses:
+                    Number(expenses || 0),
 
-                closingCash: closingCash,
+                notes:
+                    notes,
 
-                notes: notes,
+                status:
+                    "Completed",
 
-                status: "Completed",
-
-                createdAt: new Date()
+                createdAt:
+                    new Date()
             }
         );
 
@@ -196,15 +194,19 @@ window.saveDailySheet = async function () {
 
     } catch (error) {
 
-        console.log(error);
+        console.error(
+            "Save Daily Sheet Error:",
+            error
+        );
 
-        alert("❌ Save Failed");
+        alert(
+            "❌ Save Failed: " +
+            error.message
+        );
 
     }
 
 };
-
-
 // ===============================
 // Page Load
 // ===============================
