@@ -61,53 +61,108 @@ function displayCustomers(customers) {
 
     tbody.innerHTML = "";
 
-    customers.forEach((data) => {
+    customers.forEach((customer) => {
+
+        const location = customer.location || "";
+
+        let locationHTML = "No Location";
+
+        if (location) {
+
+            locationHTML = `
+                <a
+                    href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}"
+                    target="_blank"
+                    style="
+                        display:inline-block;
+                        padding:7px 10px;
+                        background:#1565c0;
+                        color:white;
+                        text-decoration:none;
+                        border-radius:6px;
+                        font-weight:bold;
+                        font-size:13px;
+                    "
+                >
+                    📍 Map Location
+                </a>
+            `;
+
+        }
 
         tbody.innerHTML += `
-        <tr>
 
-            <td>${data.serialNo || ""}</td>
+            <tr>
 
-            <td>
-                <a href="customer-details.html?id=${data.id}">
-                    ${data.customerName || ""}
-                </a>
-            </td>
+                <td>
+                    ${customer.serialNo || ""}
+                </td>
 
-            <td>${data.relation || ""}</td>
+                <td>
+                    <a href="customer-details.html?id=${customer.id}">
+                        ${customer.customerName || ""}
+                    </a>
+                </td>
 
-            <td>${data.village || ""}</td>
+                <td>
+                    ${customer.relation || ""}
+                </td>
 
-            <td>${data.phone || ""}</td>
+                <td>
+                    ${customer.village || ""}
+                </td>
 
-            <td>${data.aadhar || ""}</td>
+                <td>
+                    ${customer.phone || ""}
+                </td>
 
-            <td>
-                <img src="${data.photo || "user.png"}"
-                     width="70"
-                     height="70"
-                     style="border-radius:8px;object-fit:cover;">
-            </td>
+                <td>
+                    ${customer.aadhar || ""}
+                </td>
 
-            <td>${data.location || ""}</td>
+                <td>
+                    ${
+                        customer.photo
+                        ? `<img
+                            src="${customer.photo}"
+                            style="
+                                width:70px;
+                                height:70px;
+                                object-fit:cover;
+                                border-radius:6px;
+                            "
+                          >`
+                        : "No Photo"
+                    }
+                </td>
 
-            <td>
-                <button onclick="editCustomer('${data.id}')">
-                    Edit
-                </button>
+                <td>
+                    ${locationHTML}
+                </td>
 
-                <button onclick="deleteCustomer('${data.id}')">
-                    Delete
-                </button>
-            </td>
+                <td>
 
-        </tr>
+                    <button
+                        onclick="editCustomer('${customer.id}')"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        onclick="deleteCustomer('${customer.id}')"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            </tr>
+
         `;
 
     });
 
 }
-
 window.addCustomer = function () {
 
     const params = new URLSearchParams(window.location.search);

@@ -91,84 +91,42 @@ if(file){
     window.location.href = "day-customers.html?day=" + day;
 
 }
-window.getLocation = async function(){
+window.getLocation = async function () {
 
     if (!navigator.geolocation) {
-
         alert("Geolocation is not supported");
-
         return;
     }
 
     navigator.geolocation.getCurrentPosition(
+        async function (position) {
 
-        async function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
 
-            latitude =
-                position.coords.latitude;
+            // Exact coordinates
+            const locationValue =
+                `${lat}, ${lng}`;
 
-            longitude =
-                position.coords.longitude;
-
-            try {
-
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-                );
-
-                const data =
-                    await response.json();
-
-                const place =
-                    data.address.village ||
-                    data.address.town ||
-                    data.address.city ||
-                    data.address.suburb ||
-                    data.address.county ||
-                    "Location Not Found";
-
-                document.getElementById(
-                    "location"
-                ).value = place;
-
-                alert("📍 Location Captured Successfully");
-
-            } catch (e) {
-
-                console.log(e);
-
-                // Even if address lookup fails,
-                // latitude and longitude are already captured.
-
-                document.getElementById(
-                    "location"
-                ).value =
-                    `${latitude}, ${longitude}`;
-
-            }
+            // Show coordinates in input
+            document.getElementById("location").value =
+                locationValue;
 
         },
-
-        function(error) {
+        function (error) {
 
             console.log(error);
 
-            alert(
-                "Please allow Location Permission"
-            );
+            alert("Please allow location permission");
 
         },
-
         {
             enableHighAccuracy: true,
             timeout: 10000,
             maximumAge: 0
         }
-
     );
-
 };
-
 async function uploadPhoto(file) {
 
     const formData = new FormData();

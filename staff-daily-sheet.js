@@ -68,11 +68,8 @@ async function loadTodayCollection(){
     totalCollection = 0;
 
     const q = query(
-
         collection(db,"payments"),
-
         where("staffUser","==",staff.username)
-
     );
 
     const snap = await getDocs(q);
@@ -84,50 +81,53 @@ async function loadTodayCollection(){
         if(data.paymentDate){
 
             const paymentDate =
-
-            new Date(
-
-                data.paymentDate.seconds
-
-                ? data.paymentDate.seconds*1000
-
-                : data.paymentDate
-
-            ).toISOString().split("T")[0];
+                new Date(
+                    data.paymentDate.seconds
+                    ? data.paymentDate.seconds * 1000
+                    : data.paymentDate
+                ).toISOString().split("T")[0];
 
             if(paymentDate == today){
 
                 totalCollection +=
-                Number(data.amount || 0);
-
+                    Number(data.amount || 0);
             }
-
         }
-
     });
 
     document.getElementById("totalCollection").innerHTML =
-    "₹ " + totalCollection;
-
+        "₹ " + totalCollection;
 }
-
 // ===============================
 // Closing Cash
 // ===============================
 
 function calculateClosing() {
 
-    const openingCash = Number(
-        document.getElementById("openingCash").value
-    ) || 0;
+    const openingCash =
+        Number(
+            document.getElementById("openingCash").value
+        ) || 0;
 
-    const expenses = Number(
-        document.getElementById("expenses").value
-    ) || 0;
+    const expenses =
+        Number(
+            document.getElementById("expenses").value
+        ) || 0;
 
-    
+    const closingCash =
+        openingCash +
+        totalCollection -
+        expenses;
 
+    document.getElementById("closingCash").innerHTML =
+        "₹ " + closingCash;
 }
+
+document.getElementById("openingCash")
+    .addEventListener("input", calculateClosing);
+
+document.getElementById("expenses")
+    .addEventListener("input", calculateClosing);
 
 // Auto Calculate
 
@@ -141,22 +141,44 @@ document.getElementById("expenses")
 // ===============================
  window.saveDailySheet = async function () {
 
-    const expenses = Number(
-        document.getElementById("expenses").value
-    ) || 0;
+    // Opening Cash
+    const openingCash =
+        Number(
+            document.getElementById("openingCash").value
+        ) || 0;
 
+    // Expenses
+    const expenses =
+        Number(
+            document.getElementById("expenses").value
+        ) || 0;
+
+    // Notes
     const notes =
         document.getElementById("notes").value || "";
+        
 
     try {
 
-        // First load today's actual Loan and Collection
+        // Get latest Loan and Collection totals
         await loadTodayLoan();
         await loadTodayCollection();
 
-        console.log("Today's Loan:", totalLoan);
-        console.log("Today's Collection:", totalCollection);
-        console.log("Today's Expenses:", expenses);
+        // Calculate Closing Cash
+        const closingCash =
+            openingCash +
+            totalCollection -
+            expenses;
+
+        // Display Closing Cash
+        document.getElementById("closingCash").innerHTML =
+            "₹ " + closingCash;
+
+        console.log("Opening Cash:", openingCash);
+        console.log("Loan:", totalLoan);
+        console.log("Collection:", totalCollection);
+        console.log("Expenses:", expenses);
+        console.log("Closing Cash:", closingCash);
 
         // Save Daily Sheet
         await addDoc(
@@ -165,10 +187,14 @@ document.getElementById("expenses")
 
                 date: today,
 
-                staffUser: staff.username,
+                staffUser:
+                    staff.username,
 
                 staffName:
                     staff.name || staff.username,
+
+                openingCash:
+                    openingCash,
 
                 totalLoan:
                     Number(totalLoan || 0),
@@ -177,7 +203,10 @@ document.getElementById("expenses")
                     Number(totalCollection || 0),
 
                 expenses:
-                    Number(expenses || 0),
+                    expenses,
+
+                closingCash:
+                    closingCash,
 
                 notes:
                     notes,

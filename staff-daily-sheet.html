@@ -11,7 +11,8 @@ content="width=device-width, initial-scale=1.0">
 <title>Staff Daily Sheet</title>
 
 <style>
-    body{
+
+body{
     margin:0;
     padding:20px;
     font-family:Arial,sans-serif;
@@ -128,31 +129,24 @@ tfoot th{
 
 @media(max-width:600px){
 
-.summary-box{
+    .summary-box{
+        flex-direction:column;
+    }
 
-    flex-direction:column;
+    .container{
+        padding:15px;
+    }
 
-}
+    h2{
+        font-size:22px;
+    }
 
-.container{
-
-    padding:15px;
-
-}
-
-h2{
-
-    font-size:22px;
-
-}
-
-button{
-
-    font-size:16px;
+    button{
+        font-size:16px;
+    }
 
 }
 
-}
 </style>
 
 </head>
@@ -181,7 +175,12 @@ readonly>
 
 <br><br>
 
+<label>Opening Cash</label>
 
+<input
+type="number"
+id="openingCash"
+placeholder="Enter Opening Cash">
 
 <br><br>
 
@@ -204,22 +203,38 @@ readonly>
     </div>
 
 </div>
+
 <label>Expenses</label>
 
 <input
-    type="number"
-    id="expenses"
-    placeholder="Enter Expenses"
->
+type="number"
+id="expenses"
+placeholder="Enter Expenses">
+
 <br><br>
+
+<label>Closing Cash</label>
+
+<h3 id="closingCash">
+₹0
+</h3>
+
+<label>Notes</label>
+
 <textarea
-    id="notes"
-    placeholder="Enter Notes">
+id="notes"
+placeholder="Enter Notes">
 </textarea>
+
 <br><br>
-<button onclick="saveDailySheet()">
-    💾 Save Daily Sheet
+
+<button
+onclick="saveDailySheet()">
+
+💾 Save Daily Sheet
+
 </button>
+
 </div>
 
 <script

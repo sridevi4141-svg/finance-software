@@ -54,6 +54,12 @@ async function loadSummary(){
 
         document.getElementById("notes").innerHTML =
             data.notes || "No Notes";
+
+            document.getElementById("closingCash").innerHTML =
+    "₹ " + Number(data.closingCash || 0);
+
+    document.getElementById("openingCash").innerHTML =
+    "₹ " + Number(data.openingCash || 0);
     }
 }
 

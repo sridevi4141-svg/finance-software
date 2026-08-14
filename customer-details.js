@@ -197,20 +197,25 @@ await addDoc(collection(db, "dailyLoans"), {
 }
 
 // Create Week Cards
-async function createWeeks(totalWeeks, weeklyAmount = null) {
+// =====================================
+// Create Weekly Payment Table
+// =====================================
 
-    const renderId = ++weeksRenderId;
+async function createWeeks(totalWeeks) {
 
     const tbody = document.getElementById("paymentTable");
 
     tbody.innerHTML = "";
 
-    const weekly =
-        weeklyAmount !== null
-            ? Number(weeklyAmount)
-            : Number(document.getElementById("weeklyPayment").value || 0);
+    const weekly = Number(
+        document.getElementById("weeklyPayment").value
+    ) || 0;
 
     try {
+
+        // ============================
+        // Get All Payments
+        // ============================
 
         const q = query(
             collection(db, "payments"),
@@ -219,54 +224,93 @@ async function createWeeks(totalWeeks, weeklyAmount = null) {
 
         const paymentSnap = await getDocs(q);
 
-        // If another createWeeks() started after this one,
-        // stop this old render.
-        if (renderId !== weeksRenderId) {
-            return;
-        }
+        // ============================
+        // Store Week-wise Payments
+        // ============================
 
         const paidWeeks = {};
+
+        const paymentDates = {};
 
         paymentSnap.forEach((docSnap) => {
 
             const payment = docSnap.data();
 
-            paidWeeks[payment.week] = payment;
+            const week = Number(payment.week || 0);
+
+            const amount = Number(payment.amount || 0);
+
+            if (!paidWeeks[week]) {
+                paidWeeks[week] = 0;
+            }
+
+            paidWeeks[week] += amount;
+
+
+            // Payment Date
+            if (payment.paymentDate) {
+
+                let date;
+
+                if (payment.paymentDate.seconds) {
+
+                    date = new Date(
+                        payment.paymentDate.seconds * 1000
+                    );
+
+                } else {
+
+                    date = new Date(
+                        payment.paymentDate
+                    );
+
+                }
+
+                paymentDates[week] =
+                    date.toLocaleDateString();
+
+            }
 
         });
 
+
+        // ============================
+        // Create Week Rows
+        // ============================
+
         for (let i = 1; i <= totalWeeks; i++) {
 
-            if (paidWeeks[i]) {
+            const paidAmount =
+                Number(paidWeeks[i] || 0);
 
-                let paymentDate = "-";
+            const remainingAmount =
+                Math.max(
+                    weekly - paidAmount,
+                    0
+                );
 
-                if (paidWeeks[i].paymentDate) {
+            const paymentDate =
+                paymentDates[i] || "-";
 
-                    if (paidWeeks[i].paymentDate.seconds) {
 
-                        paymentDate = new Date(
-                            paidWeeks[i].paymentDate.seconds * 1000
-                        ).toLocaleDateString();
+            // ==================================
+            // FULLY PAID
+            // ==================================
 
-                    } else {
-
-                        paymentDate = new Date(
-                            paidWeeks[i].paymentDate
-                        ).toLocaleDateString();
-
-                    }
-
-                }
+            if (paidAmount >= weekly) {
 
                 tbody.innerHTML += `
                     <tr>
 
                         <td>${i}</td>
 
-                        <td>₹ ${weekly}</td>
+                        <td>
+                            ₹ ${paidAmount}
+                        </td>
 
-                        <td>${paymentDate}</td>
+                        <td>
+                            ${paymentDate}
+                        </td>
 
                         <td class="paid">
                             ✅ Paid
@@ -292,16 +336,75 @@ async function createWeeks(totalWeeks, weeklyAmount = null) {
                     </tr>
                 `;
 
-            } else {
+            }
+
+
+            // ==================================
+            // PARTIAL PAYMENT
+            // ==================================
+
+            else if (paidAmount > 0) {
 
                 tbody.innerHTML += `
                     <tr>
 
                         <td>${i}</td>
 
-                        <td>₹ ${weekly}</td>
+                        <td>
+                            ₹ ${paidAmount}
+                            /
+                            ₹ ${weekly}
 
-                        <td>-</td>
+                            <br>
+
+                            <small style="color:red;">
+                                Balance: ₹ ${remainingAmount}
+                            </small>
+                        </td>
+
+                        <td>
+                            ${paymentDate}
+                        </td>
+
+                        <td class="pending">
+                            🟠 Partial
+                        </td>
+
+                        <td>
+
+                            <button
+                                class="pay-btn"
+                                onclick="openWeek(${i}, ${remainingAmount})"
+                            >
+                                Pay
+                            </button>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+
+
+            // ==================================
+            // NOT PAID
+            // ==================================
+
+            else {
+
+                tbody.innerHTML += `
+                    <tr>
+
+                        <td>${i}</td>
+
+                        <td>
+                            ₹ ${weekly}
+                        </td>
+
+                        <td>
+                            -
+                        </td>
 
                         <td class="pending">
                             🟠 Pending
@@ -311,7 +414,7 @@ async function createWeeks(totalWeeks, weeklyAmount = null) {
 
                             <button
                                 class="pay-btn"
-                                onclick="openWeek(${i})"
+                                onclick="openWeek(${i}, ${weekly})"
                             >
                                 Pay
                             </button>
@@ -327,25 +430,30 @@ async function createWeeks(totalWeeks, weeklyAmount = null) {
 
     } catch (error) {
 
-        console.error("createWeeks Error:", error);
+        console.error(
+            "createWeeks Error:",
+            error
+        );
 
     }
 
 }
 let selectedWeek=0;
 
-window.openWeek=function(week){
+window.openWeek = function(week, remainingAmount){
 
-    selectedWeek=week;
+    selectedWeek = week;
 
-    document.getElementById("weekTitle").innerHTML=
-    "Week "+week;
+    document.getElementById("weekTitle").innerHTML =
+        "Week " + week;
 
-    document.getElementById("paymentPopup").style.display=
-    "block";
+    // Remaining amount automatically fill
+    document.getElementById("paidAmount").value =
+        remainingAmount || "";
 
-}
-
+    document.getElementById("paymentPopup").style.display =
+        "block";
+};
 window.closePopup=function(){
 
     document.getElementById("paymentPopup").style.display=
@@ -353,22 +461,30 @@ window.closePopup=function(){
 
 }
 
+// =====================================
+// Save Week Payment
+// Supports ₹400, ₹500, ₹700, ₹1000 etc.
+// =====================================
+
 window.saveWeekPayment = async function () {
 
     const paidAmount = Number(
         document.getElementById("paidAmount").value
-    );
+    ) || 0;
 
     if (paidAmount <= 0) {
+
         alert("Enter Amount");
+
         return;
     }
 
+
     try {
 
-        // =========================
-        // Customer
-        // =========================
+        // ============================
+        // Get Customer
+        // ============================
 
         const customerRef = doc(
             db,
@@ -379,248 +495,174 @@ window.saveWeekPayment = async function () {
         const customerSnap =
             await getDoc(customerRef);
 
+
         if (!customerSnap.exists()) {
-            alert("Customer not found");
+
+            alert("Customer Not Found");
+
             return;
         }
+
 
         const customer =
             customerSnap.data();
 
 
-        // =========================
-        // Balance
-        // =========================
+        // ============================
+        // Current Balance
+        // ============================
 
         const currentBalance =
             Number(customer.toPay || 0);
 
+
+        // ============================
+        // Check Balance
+        // ============================
+
         if (paidAmount > currentBalance) {
 
             alert(
-                `Amount cannot be greater than balance ₹${currentBalance}`
+                "Payment cannot be greater than remaining balance ₹"
+                + currentBalance
             );
 
             return;
         }
 
 
-        // =========================
-        // Weekly Amount
-        // =========================
+        // ============================
+        // Selected Week
+        // ============================
 
-        const weeklyPayment =
-            Number(customer.weeklyPayment || 0);
-
-        if (weeklyPayment <= 0) {
-
-            alert("Weekly payment not found");
-
-            return;
-        }
+        const weekNumber =
+            Number(selectedWeek) || 1;
 
 
-        // =========================
-        // Check Amount
-        // =========================
-
-        if (paidAmount % weeklyPayment !== 0) {
-
-            alert(
-                `Please enter amount in multiples of ₹${weeklyPayment}`
-            );
-
-            return;
-        }
-
-
-        // =========================
-        // How many weeks?
-        // =========================
-
-        const weeksToPay =
-            Math.floor(
-                paidAmount / weeklyPayment
-            );
-
-
-        // =========================
-        // Existing Payments
-        // =========================
-
-        const paymentQuery = query(
-            collection(db, "payments"),
-            where(
-                "customerId",
-                "==",
-                customerId
-            )
-        );
-
-        const paymentSnap =
-            await getDocs(paymentQuery);
-
-
-        const paidWeeks = new Set();
-
-        paymentSnap.forEach((docSnap) => {
-
-            const payment =
-                docSnap.data();
-
-            if (payment.week) {
-
-                paidWeeks.add(
-                    Number(payment.week)
-                );
-
-            }
-
-        });
-
-
-        // =========================
-        // Find Unpaid Weeks
-        // =========================
-
-        const totalWeeks =
-            Number(customer.weeks || 0);
-
-        const weeksToMark = [];
-
-        for (
-            let week = selectedWeek;
-            week <= totalWeeks;
-            week++
-        ) {
-
-            if (!paidWeeks.has(week)) {
-
-                weeksToMark.push(week);
-
-            }
-
-            if (
-                weeksToMark.length ===
-                weeksToPay
-            ) {
-                break;
-            }
-
-        }
-
-
-        // =========================
-        // Check Available Weeks
-        // =========================
-
-        if (
-            weeksToMark.length <
-            weeksToPay
-        ) {
-
-            alert(
-                "Not enough unpaid weeks available"
-            );
-
-            return;
-        }
-
-
-        // =========================
+        // ============================
         // Staff
-        // =========================
+        // ============================
 
         const staff =
             JSON.parse(
-                localStorage.getItem(
-                    "staffLogin"
-                )
+                localStorage.getItem("staffLogin")
             );
+
 
         if (!staff) {
 
-            alert("Staff login not found");
+            alert("Staff Login Not Found");
 
             return;
         }
 
 
-        // =========================
-        // Save Each Week
-        // =========================
+        // ============================
+        // SAVE FULL PAYMENT
+        // ============================
 
-        for (const week of weeksToMark) {
+        await addDoc(
+            collection(db, "payments"),
+            {
 
-            await addDoc(
-                collection(db, "payments"),
-                {
+                customerId:
+                    customerId,
 
-                    customerId:
-                        customerId,
+                week:
+                    weekNumber,
 
-                    week:
-                        week,
+                amount:
+                    paidAmount,
 
-                    amount:
-                        weeklyPayment,
+                paymentDate:
+                    new Date(),
 
-                    paymentDate:
-                        new Date(),
+                staffUser:
+                    staff.username,
 
-                    staffUser:
-                        staff.username,
+                status:
+                    "Paid"
 
-                    status:
-                        "Paid"
-
-                }
-            );
-
-        }
+            }
+        );
 
 
-        // =========================
-        // Update Balance
-        // =========================
+        // ============================
+        // Update Customer Balance
+        // ============================
 
         const newBalance =
-            currentBalance -
-            paidAmount;
+            currentBalance - paidAmount;
+
 
         await updateDoc(
             customerRef,
             {
-                toPay: newBalance
+
+                toPay:
+                    newBalance
+
             }
         );
 
 
-        // Update screen
+        // ============================
+        // Update Balance Textbox
+        // ============================
 
         document.getElementById(
             "toPay"
         ).value = newBalance;
 
 
+        // ============================
+        // Clear Payment Input
+        // ============================
+
+        document.getElementById(
+            "paidAmount"
+        ).value = "";
+
+
+        // ============================
+        // Success
+        // ============================
+
         alert(
-            `${weeksToMark.length} week(s) payment saved successfully`
+            "Payment Saved Successfully"
         );
 
 
         closePopup();
 
 
-        // Reload customer / weeks
+        // ============================
+        // Reload Customer
+        // ============================
 
         await loadCustomer();
 
-    }
-    catch (e) {
+
+        // ============================
+        // Reload Weekly Table
+        // ============================
+
+        const totalWeeks =
+            Number(
+                document.getElementById("weeks").value
+            ) || 0;
+
+
+        await createWeeks(
+            totalWeeks
+        );
+
+
+    } catch (error) {
 
         console.error(
-            "saveWeekPayment Error:",
-            e
+            "Payment Error:",
+            error
         );
 
         alert(
