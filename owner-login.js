@@ -7,36 +7,115 @@ import {
     getDocs
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
+
 async function loginOwner() {
 
-    const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value.trim();
+    const usernameInput =
+        document.getElementById("loginUsername");
 
-    if (username === "" || password === "") {
-        alert("Please enter Username and Password");
+    const passwordInput =
+        document.getElementById("loginPassword");
+
+
+    if (!usernameInput || !passwordInput) {
+
+        alert("Login fields not found");
+
         return;
     }
 
-    const q = query(
-        collection(db, "owners"),
-        where("username", "==", username),
-        where("password", "==", password)
-    );
 
-    const querySnapshot = await getDocs(q);
+    const username =
+        usernameInput.value.trim();
 
-    if (!querySnapshot.empty) {
+    const password =
+        passwordInput.value.trim();
+
+
+    if (!username || !password) {
+
+        alert("Please enter Username and Password");
+
+        return;
+    }
+
+
+    try {
+
+        // Search owner by username
+        const q = query(
+            collection(db, "owners"),
+            where("username", "==", username)
+        );
+
+
+        const querySnapshot =
+            await getDocs(q);
+
+
+        // Username not found
+        if (querySnapshot.empty) {
+
+            alert("Username not found");
+
+            return;
+        }
+
+
+        // Get owner data
+        const owner =
+            querySnapshot.docs[0].data();
+
+
+        // Check password
+        if (
+            !owner.password ||
+            String(owner.password) !== String(password)
+        ) {
+
+            alert("Incorrect Password");
+
+            return;
+        }
+
+
+        // Save logged-in owner
+        localStorage.setItem(
+            "ownerLogin",
+            JSON.stringify({
+
+                name: owner.name || "",
+
+                username: owner.username || ""
+
+            })
+        );
+
 
         alert("Login Success");
 
-        window.location.href = "owner-dashboard.html";
 
-    } else {
+        // Go to home page
+        window.location.href =
+            "owner-dashboard.html";
 
-        alert("Invalid Username or Password");
+
+    } catch (error) {
+
+        console.error(
+            "Owner Login Error:",
+            error
+        );
+
+        alert(
+            "Login Failed: " +
+            error.message
+        );
 
     }
 
 }
 
-window.loginOwner = loginOwner;
+
+window.loginOwner =
+    loginOwner;

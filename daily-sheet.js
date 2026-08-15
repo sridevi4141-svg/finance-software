@@ -202,9 +202,10 @@ function calculateClosing() {
     ) || 0;
 
     const closingCash =
-        openingCash +
-        todayCollection -
-        expenses;
+    openingCash -
+    totalLoan +
+    totalCollection -
+    expenses;
 
     document.getElementById("closingCash").innerHTML =
         "₹ " + closingCash;

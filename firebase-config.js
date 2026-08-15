@@ -1,8 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import {
+    getAuth
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-import { getStorage } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+import {
+    getFirestore
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+import {
+    getStorage
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+
 
 const firebaseConfig = {
 
@@ -20,14 +29,26 @@ const firebaseConfig = {
 
 };
 
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+
+// Authentication
+const auth = getAuth(app);
+
 
 // Firestore
 const db = getFirestore(app);
 
+
 // Storage
 const storage = getStorage(app);
 
+
 // Export
-export { db, storage };
+export {
+    auth,
+    db,
+    storage
+};

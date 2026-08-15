@@ -1,48 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Finance Software</title>
 
-<link rel="stylesheet" href="style.css">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-<!-- Font Awesome Icons -->
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<title>Finance Software - Login</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial,sans-serif;
+    background:#f5f7fb;
+    background-image:url("images/bg.jpg");
+}
+
+.auth-container{
+    width:90%;
+    max-width:400px;
+    background:white;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+    text-align:center;
+}
+
+.auth-container h1{
+    color:#1565c0;
+    margin-bottom:10px;
+}
+
+.auth-container p{
+    color:#666;
+    margin-bottom:25px;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    margin-top:15px;
+    border:none;
+    border-radius:8px;
+    background:#1565c0;
+    color:white;
+    font-size:17px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+.signup-btn{
+    background:#28a745;
+}
+
+.signup-btn:hover{
+    background:#218838;
+}
+
+.toggle{
+    margin-top:20px;
+    color:#1565c0;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.message{
+    margin-top:15px;
+    font-weight:bold;
+}
+
+.hidden{
+    display:none;
+}
+
+</style>
 
 </head>
+
+
 <body>
 
-<div class="container">
 
-<h1>Hi 👋</h1>
+<div class="auth-container">
 
-<p>Select Login</p>
 
-<div class="cards">
+    <!-- LOGIN -->
 
-<div class="card" onclick="ownerLogin()">
+    <div id="loginBox">
 
-<i class="fa-solid fa-user-tie"></i>
+        <h1>💰 Finance Software</h1>
 
-<h2>Owner</h2>
+        <p>Sign in to continue</p>
+
+
+        <input
+            type="text"
+            id="loginUsername"
+            placeholder="Username"
+        >
+
+
+        <input
+            type="password"
+            id="loginPassword"
+            placeholder="Password"
+        >
+
+
+        <button onclick="loginUser()">
+
+            🔐 Sign In
+
+        </button>
+
+
+        <div
+            class="toggle"
+            onclick="showSignup()"
+        >
+
+            Don't have an account?
+
+            <br>
+
+            Create Account
+
+        </div>
+
+    </div>
+
+
+
+    <!-- SIGN UP -->
+
+    <div
+        id="signupBox"
+        class="hidden"
+    >
+
+        <h1>📝 Create Account</h1>
+
+        <p>Create your Finance Software account</p>
+
+
+        <input
+            type="text"
+            id="signupName"
+            placeholder="Your Name"
+        >
+
+
+        <input
+            type="text"
+            id="signupUsername"
+            placeholder="Username"
+        >
+
+
+        <input
+            type="password"
+            id="signupPassword"
+            placeholder="Password"
+        >
+
+
+        <input
+            type="password"
+            id="signupConfirmPassword"
+            placeholder="Confirm Password"
+        >
+
+
+        <button
+            class="signup-btn"
+            onclick="signupUser()"
+        >
+
+            📝 Create Account
+
+        </button>
+
+
+        <div
+            class="toggle"
+            onclick="showLogin()"
+        >
+
+            Already have an account?
+
+            <br>
+
+            Sign In
+
+        </div>
+
+    </div>
+
+
+    <!-- MESSAGE -->
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
 
 </div>
 
-<div class="card" onclick="staffLogin()">
 
-<i class="fa-solid fa-users"></i>
+<script
+    type="module"
+    src="auth.js"
+></script>
 
-<h2>Staff</h2>
-
-</div>
-
-</div>
-
-</div>
-
-<script type="module" src="script.js"></script>
 
 </body>
+
 </html>
