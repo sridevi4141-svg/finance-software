@@ -3,15 +3,6 @@ import {
     auth
 } from "./firebase-config.js";
 
-import {
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
-import {
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
 
 // ==============================
 // SHOW OWNER / STAFF NAME
@@ -23,99 +14,91 @@ const welcomeText =
 
 if (welcomeText) {
 
-    // Check Owner
-    const ownerData =
-        JSON.parse(
-            localStorage.getItem("ownerLogin")
-        );
+    // Default
+    welcomeText.innerText = "Hi 👋";
 
 
-    // Check Staff
-    const staffData =
-        JSON.parse(
-            localStorage.getItem("staffLogin")
-        );
+    // Check Owner Login
+    const ownerLoginData =
+        localStorage.getItem("ownerLogin");
 
 
-    if (ownerData && ownerData.name) {
+    // Check Staff Login
+    const staffLoginData =
+        localStorage.getItem("staffLogin");
 
-        welcomeText.innerText =
-            `Hi ${ownerData.name} 👋`;
+
+    if (ownerLoginData) {
+
+        try {
+
+            const owner =
+                JSON.parse(ownerLoginData);
+
+
+            if (owner && owner.name) {
+
+                welcomeText.innerText =
+                    `Hi ${owner.name} 👋`;
+
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Invalid owner login data"
+            );
+
+            localStorage.removeItem(
+                "ownerLogin"
+            );
+
+        }
 
     }
 
-    else if (staffData && staffData.name) {
+    else if (staffLoginData) {
 
-        welcomeText.innerText =
-            `Hi ${staffData.name} 👋`;
+        try {
+
+            const staff =
+                JSON.parse(staffLoginData);
+
+
+            if (staff && staff.name) {
+
+                welcomeText.innerText =
+                    `Hi ${staff.name} 👋`;
+
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Invalid staff login data"
+            );
+
+            localStorage.removeItem(
+                "staffLogin"
+            );
+
+        }
 
     }
 
 }
-
-
-// =====================================
-// CHECK USER LOGIN
-// =====================================
-
-onAuthStateChanged(auth, (user) => {
-
-    if (!user) {
-
-        // User is not logged in
-        window.location.href = "auth.html";
-
-    }
-
-});
 
 
 // =====================================
 // OWNER LOGIN
 // =====================================
 
-async function ownerLogin() {
+window.ownerLogin = function () {
 
-    try {
+    window.location.href =
+        "owner-login.html";
 
-        const snapshot =
-            await getDocs(
-                collection(db, "owners")
-            );
-
-
-        if (snapshot.empty) {
-
-            // First Time
-            window.location.href =
-                "owner-register.html";
-
-        } else {
-
-            // Already Account Created
-            window.location.href =
-                "owner-login.html";
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Owner Login Error:",
-            error
-        );
-
-        alert(
-            "Unable to check Owner account"
-        );
-
-    }
-
-}
-
-
-// Make function available to HTML
-window.ownerLogin = ownerLogin;
+};
 
 
 // =====================================
@@ -126,5 +109,17 @@ window.staffLogin = function () {
 
     window.location.href =
         "staff-login.html";
+
+};
+
+
+// =====================================
+// CREATE ACCOUNT
+// =====================================
+
+window.createAccount = function () {
+
+    window.location.href =
+        "create-account.html";
 
 };

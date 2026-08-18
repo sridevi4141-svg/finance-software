@@ -47,7 +47,9 @@ const storage = getStorage(app);
 
 
 // Export
+// Export
 export {
+    app,
     auth,
     db,
     storage

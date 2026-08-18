@@ -42,19 +42,76 @@ async function loginOwner() {
 
     try {
 
-        // Search owner by username
-        const q = query(
+        // =================================================
+        // 1. FIRST CHECK OLD OWNERS COLLECTION
+        // =================================================
+
+        const ownerQuery = query(
             collection(db, "owners"),
             where("username", "==", username)
         );
 
+        const ownerSnapshot =
+            await getDocs(ownerQuery);
 
-        const querySnapshot =
-            await getDocs(q);
+
+        if (!ownerSnapshot.empty) {
+
+            const owner =
+                ownerSnapshot.docs[0].data();
 
 
-        // Username not found
-        if (querySnapshot.empty) {
+            // Check password
+            if (
+                !owner.password ||
+                String(owner.password) !== String(password)
+            ) {
+
+                alert("Incorrect Password");
+
+                return;
+            }
+
+
+            // Save login
+            localStorage.setItem(
+                "ownerLogin",
+                JSON.stringify({
+
+                    name: owner.name || "",
+
+                    username: owner.username || ""
+
+                })
+            );
+
+
+            alert("Login Success");
+
+
+            window.location.href =
+                "owner-dashboard.html";
+
+            return;
+        }
+
+
+        // =================================================
+        // 2. CHECK NEW ACCOUNT REQUESTS
+        // =================================================
+
+        const requestQuery = query(
+            collection(db, "accountRequests"),
+            where("username", "==", username)
+        );
+
+
+        const requestSnapshot =
+            await getDocs(requestQuery);
+
+
+        // Username not found anywhere
+        if (requestSnapshot.empty) {
 
             alert("Username not found");
 
@@ -62,15 +119,51 @@ async function loginOwner() {
         }
 
 
-        // Get owner data
-        const owner =
-            querySnapshot.docs[0].data();
+        const account =
+            requestSnapshot.docs[0].data();
 
 
-        // Check password
+        // =================================================
+        // 3. CHECK ACCOUNT STATUS
+        // =================================================
+
+        if (account.status === "Pending Approval") {
+
+            alert(
+                "⏳ Your account is waiting for Boss approval."
+            );
+
+            return;
+        }
+
+
+        if (account.status === "Rejected") {
+
+            alert(
+                "❌ Your account has been rejected."
+            );
+
+            return;
+        }
+
+
+        if (account.status !== "Approved") {
+
+            alert(
+                "Your account is not approved yet."
+            );
+
+            return;
+        }
+
+
+        // =================================================
+        // 4. CHECK PASSWORD
+        // =================================================
+
         if (
-            !owner.password ||
-            String(owner.password) !== String(password)
+            !account.password ||
+            String(account.password) !== String(password)
         ) {
 
             alert("Incorrect Password");
@@ -79,14 +172,17 @@ async function loginOwner() {
         }
 
 
-        // Save logged-in owner
+        // =================================================
+        // 5. LOGIN SUCCESS
+        // =================================================
+
         localStorage.setItem(
             "ownerLogin",
             JSON.stringify({
 
-                name: owner.name || "",
+                name: account.name || "",
 
-                username: owner.username || ""
+                username: account.username || ""
 
             })
         );
@@ -95,7 +191,6 @@ async function loginOwner() {
         alert("Login Success");
 
 
-        // Go to home page
         window.location.href =
             "owner-dashboard.html";
 
@@ -107,6 +202,7 @@ async function loginOwner() {
             error
         );
 
+
         alert(
             "Login Failed: " +
             error.message
@@ -117,5 +213,6 @@ async function loginOwner() {
 }
 
 
+// Make function available to HTML
 window.loginOwner =
     loginOwner;
