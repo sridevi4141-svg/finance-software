@@ -8,6 +8,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 
+// =================================================
+// OWNER LOGIN
+// =================================================
+
 async function loginOwner() {
 
     const usernameInput =
@@ -51,17 +55,35 @@ async function loginOwner() {
             where("username", "==", username)
         );
 
+
         const ownerSnapshot =
             await getDocs(ownerQuery);
 
 
         if (!ownerSnapshot.empty) {
 
+            // Get complete document
+            const ownerDoc =
+                ownerSnapshot.docs[0];
+
+            // Get document data
             const owner =
-                ownerSnapshot.docs[0].data();
+                ownerDoc.data();
+
+            // Unique Owner ID
+            const ownerId =
+                ownerDoc.id;
+                console.log("OWNER DOCUMENT ID:", ownerDoc.id);
+console.log("OWNER DATA:", owner);
+
+console.log("ACCOUNT REQUEST DOCUMENT ID:", accountDoc.id);
+console.log("ACCOUNT REQUEST DATA:", account);
 
 
-            // Check password
+            // =================================================
+            // CHECK PASSWORD
+            // =================================================
+
             if (
                 !owner.password ||
                 String(owner.password) !== String(password)
@@ -73,10 +95,15 @@ async function loginOwner() {
             }
 
 
-            // Save login
+            // =================================================
+            // SAVE OWNER LOGIN
+            // =================================================
+
             localStorage.setItem(
                 "ownerLogin",
                 JSON.stringify({
+
+                    ownerId: ownerId,
 
                     name: owner.name || "",
 
@@ -119,8 +146,17 @@ async function loginOwner() {
         }
 
 
+        // Get complete account request document
+        const accountDoc =
+            requestSnapshot.docs[0];
+
+        // Get document data
         const account =
-            requestSnapshot.docs[0].data();
+            accountDoc.data();
+
+        // Unique Owner ID
+        const ownerId =
+            accountDoc.id;
 
 
         // =================================================
@@ -180,6 +216,8 @@ async function loginOwner() {
             "ownerLogin",
             JSON.stringify({
 
+                ownerId: ownerId,
+
                 name: account.name || "",
 
                 username: account.username || ""
@@ -213,6 +251,9 @@ async function loginOwner() {
 }
 
 
-// Make function available to HTML
+// =================================================
+// MAKE FUNCTION AVAILABLE TO HTML
+// =================================================
+
 window.loginOwner =
     loginOwner;

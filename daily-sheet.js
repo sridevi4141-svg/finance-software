@@ -244,9 +244,10 @@ window.saveDailySheet = async function () {
         document.getElementById("notes").value;
 
     const closingCash =
-        openingCash +
-        todayCollection -
-        expenses;
+    openingCash -
+    totalLoan +
+    todayCollection -
+    expenses;
 
     try {
 

@@ -115,9 +115,10 @@ function calculateClosing() {
         ) || 0;
 
     const closingCash =
-        openingCash +
-        totalCollection -
-        expenses;
+    openingCash -
+    totalLoan +
+    totalCollection -
+    expenses;
 
     document.getElementById("closingCash").innerHTML =
         "₹ " + closingCash;
@@ -166,9 +167,10 @@ document.getElementById("expenses")
 
         // Calculate Closing Cash
         const closingCash =
-            openingCash +
-            totalCollection -
-            expenses;
+    openingCash -
+    totalLoan +
+    todayCollection -
+    expenses;
 
         // Display Closing Cash
         document.getElementById("closingCash").innerHTML =
